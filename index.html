@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
+  <meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Document</title>
 
@@ -9,68 +9,75 @@
 	<script src="https://apis.google.com/js/api.js"></script>
 
 	<script>
-		let tokenClient;
-		let gapiInited = false;
-		let gisInited = false;
+  "use strict";
 
-		const CLIENT_ID = '246049552174-fqcrsh2uvcpouptn1tij8t7bh686h4ad.apps.googleusercontent.com'; /*afegim el google clientID*/
-		const API_KEY = ''; /*això no cal*/
-		const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'; /*Afegim l'SCOPE: lo que permet fer amb l'app de google*/
+  let tokenClient;
+  let gapiInited = false;
+  let gisInited = false;
+  let correus = []; // Declaración global explícita
 
-		function gapiLoaded() {
-			gapi.load('client', initializeGapiClient);
-		}
+  const CLIENT_ID = '246049552174-fqcrsh2uvcpouptn1tij8t7bh686h4ad.apps.googleusercontent.com'; /*afegim el google clientID*/
+  const API_KEY = ''; /*això no cal*/
+  const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'; /*Afegim l'SCOPE: lo que permet fer amb l'app de google*/
 
-		async function initializeGapiClient() {
-			await gapi.client.init({
-				apiKey: API_KEY,
-				discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
-			});
-			gapiInited = true;
-			maybeEnableButton();
-		}
+  function gapiLoaded() {
+    gapi.load('client', initializeGapiClient);
+  }
 
-		function gisLoaded() {
-			tokenClient = google.accounts.oauth2.initTokenClient({
-				client_id: CLIENT_ID,
-				scope: SCOPES,
-				callback: async (tokenResponse) => {
-					console.log('Usuari Autenticat');
-					llistarCorreus();
-				},
-			});
-			gisInited = true;
-			maybeEnableButton();
-		}
+  async function initializeGapiClient() {
+    await gapi.client.init({
+      apiKey: API_KEY,
+      discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
+    });
+    gapiInited = true;
+    maybeEnableButton();
+  }
 
-		function maybeEnableButton() {
-			if (gapiInited && gisInited) {
-				document.getElementById('login-button').disabled = false;
-			}
-		}
+  function gisLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: async (tokenResponse) => {
+        console.log('Usuari Autenticat');
+        correus = await llistarCorreus(); // Uso correcto de 'await' y asignación global
+      },
+    });
+    gisInited = true;
+    maybeEnableButton();
+  }
 
-		function handleAuthClick() {
-			tokenClient.requestAccessToken();
-		}
+  function maybeEnableButton() {
+    if (gapiInited && gisInited) {
+      document.getElementById('login-button').disabled = false;
+    }
+  }
 
-		async function llistarCorreus() {
-			const response = await gapi.client.gmail.users.messages.list({
-				userId: 'me',
-				maxResults: 5,
-			});
-			const messages = response.result.messages;
-			if (!messages || messages.length === 0) {
-				console.log('No se encontraron mensajes.');
-			} else {
-				console.log('Mensajes:', messages);
-			}
-		}
+  function handleAuthClick() {
+    tokenClient.requestAccessToken();
+  }
 
-		window.onload = () => {
-			gapiLoaded();
-			gisLoaded();
-		};
-	</script>
+  async function llistarCorreus() {
+    const response = await gapi.client.gmail.users.messages.list({
+      userId: 'me',
+      q: 'from:ticket_digital@mail.mercadona.com',  // Parametre Q permet buscar filtres. Pots buscar per (subject:), per remitent (from:), per paraules en el cos o combinar filtres (subject:Factura from:paypal)
+      maxResults: 5,
+    });
+
+    const messages = response.result.messages;
+    if (!messages || messages.length === 0) {
+      console.log('No se encontraron mensajes con ese asunto.');
+      return [];
+    } else {
+      console.log('Mensajes filtrados:', messages);
+      return messages;
+    }
+  }
+
+  window.onload = () => {
+    gapiLoaded();
+    gisLoaded();
+  };
+</script>
 </head>
 <body>
 	<h1>Consultar Gmail</h1>
