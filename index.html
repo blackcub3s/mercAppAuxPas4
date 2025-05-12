@@ -1,28 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Descarga de tickets</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js"></script>
 
-    <!--carrego la api de google-->
-    <script src="https://apis.google.com/js/api.js"></script>
+<script>
+  let tokenClient;
+  let gapiInited = false;
+  let gisInited = false;
 
-    <!--Necessito aquesta línea per fer crides desde localhost:5500 -treballant en local amb vscode- per
-    aconsegir que el navegador no bloqueji certs dominis per la política CSP (Content Security Policy 
-    o Política de seguretat de contingut) que s'està aplicant per seguretat. El que bloqueja concretament és
-    la càrrega d'un script de google des de gstatic.com (la política CSP aplicada era 
-    script-src 'unsafe-inline' 'unsafe-eval' blob: data) i la càrrega d'un script des de https://apis.google.com.
-    La solució rau en fer EXCEPCIONS a aquestes: 
-   <meta http-equiv="Content-Security-Policy" content="script-src 'self' https://www.gstatic.com https://apis.google.com 'unsafe-inline';">-->
+  const CLIENT_ID = '246049552174-fqcrsh2uvcpouptn1tij8t7bh686h4ad.apps.googleusercontent.com';
+  const API_KEY = ''; // Si lo necesitas para otros servicios
+  const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
 
+  // Load gapi.client
+  function gapiLoaded() {
+    gapi.load('client', initializeGapiClient);
+  }
 
-    
+  async function initializeGapiClient() {
+    await gapi.client.init({
+      apiKey: API_KEY,
+      discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
+    });
+    gapiInited = true;
+    maybeEnableButtons();
+  }
 
+  // Load GIS
+  function gisLoaded() {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: CLIENT_ID,
+      scope: SCOPES,
+      callback: async (tokenResponse) => {
+        console.log('Usuari Autenticat');
+        llistarCorreus();
+      },
+    });
+    gisInited = true;
+    maybeEnableButtons();
+  }
 
-    <script src="js/scriptExtraccio.js"></script>
-</head>
-<body>
-    <p>COM COSTA AIXO!</p>
-</body>
-</html>
+  function maybeEnableButtons() {
+    if (gapiInited && gisInited) {
+      // Aquí puedes auto-iniciar si quieres
+      tokenClient.requestAccessToken();
+    }
+  }
+
+  async function llistarCorreus() {
+    const response = await gapi.client.gmail.users.messages.list({
+      userId: 'me',
+      maxResults: 5,
+    });
+    const messages = response.result.messages;
+    if (!messages || messages.length === 0) {
+      console.log('No se encontraron mensajes.');
+    } else {
+      console.log('Mensajes:', messages);
+    }
+  }
+
+  window.onload = () => {
+    gapiLoaded();
+    gisLoaded();
+  };
+</script>
