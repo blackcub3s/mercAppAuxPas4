@@ -44,10 +44,43 @@
               console.log('Usuari Autenticat');
               let correus = await llistarCorreus();
 
-              // Extraiem els ids dels correus del tiket digital
-              for (let i = 0; i < correus.length; ++i) {
-                  console.log("correu "+correus[i].id);
+              /*CHUNK PER DESCARREGAR CORREUS*/
+              for (const correu of correus) {
+                const message = await gapi.client.gmail.users.messages.get({
+                  userId: 'me',
+                  id: correu.id,
+                  format: 'full',
+                });
+
+                const parts = message.result.payload.parts;
+                if (!parts) continue;
+
+                for (const part of parts) {
+                  if (part.filename && part.filename.endsWith('.pdf')) {
+                    const attachmentId = part.body.attachmentId;
+
+                    const attachment = await gapi.client.gmail.users.messages.attachments.get({
+                      userId: 'me',
+                      messageId: correu.id,
+                      id: attachmentId,
+                    });
+
+                    // Decodificamos el base64 URL-safe (lo hace Gmail)
+                    const base64Data = attachment.result.data.replace(/-/g, '+').replace(/_/g, '/');
+                    const byteCharacters = atob(base64Data);
+                    const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
+                    const byteArray = new Uint8Array(byteNumbers);
+
+                    const blob = new Blob([byteArray], { type: 'application/pdf' });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = part.filename;
+                    link.click();
+                  }
+                }
               }
+              
+              /*FI CHUNKS PER DESCARREGAR CORREUS*/
           },
       });
     gisInited = true;
