@@ -13,9 +13,9 @@
 		let gapiInited = false;
 		let gisInited = false;
 
-		const CLIENT_ID = '246049552174-fqcrsh2uvcpouptn1tij8t7bh686h4ad.apps.googleusercontent.com';
-		const API_KEY = '';
-		const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+		const CLIENT_ID = '246049552174-fqcrsh2uvcpouptn1tij8t7bh686h4ad.apps.googleusercontent.com'; /*afegim el google clientID*/
+		const API_KEY = ''; /*això no cal*/
+		const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'; /*Afegim l'SCOPE: lo que permet fer amb l'app de google*/
 
 		function gapiLoaded() {
 			gapi.load('client', initializeGapiClient);
