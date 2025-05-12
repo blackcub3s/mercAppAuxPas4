@@ -1,65 +1,79 @@
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://apis.google.com/js/api.js"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
 
-<script>
-  let tokenClient;
-  let gapiInited = false;
-  let gisInited = false;
+	<script src="https://accounts.google.com/gsi/client" async defer></script>
+	<script src="https://apis.google.com/js/api.js"></script>
 
-  const CLIENT_ID = '246049552174-fqcrsh2uvcpouptn1tij8t7bh686h4ad.apps.googleusercontent.com';
-  const API_KEY = ''; // Si lo necesitas para otros servicios
-  const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+	<script>
+		let tokenClient;
+		let gapiInited = false;
+		let gisInited = false;
 
-  // Load gapi.client
-  function gapiLoaded() {
-    gapi.load('client', initializeGapiClient);
-  }
+		const CLIENT_ID = '246049552174-fqcrsh2uvcpouptn1tij8t7bh686h4ad.apps.googleusercontent.com';
+		const API_KEY = '';
+		const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
 
-  async function initializeGapiClient() {
-    await gapi.client.init({
-      apiKey: API_KEY,
-      discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
-    });
-    gapiInited = true;
-    maybeEnableButtons();
-  }
+		function gapiLoaded() {
+			gapi.load('client', initializeGapiClient);
+		}
 
-  // Load GIS
-  function gisLoaded() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: async (tokenResponse) => {
-        console.log('Usuari Autenticat');
-        llistarCorreus();
-      },
-    });
-    gisInited = true;
-    maybeEnableButtons();
-  }
+		async function initializeGapiClient() {
+			await gapi.client.init({
+				apiKey: API_KEY,
+				discoveryDocs: ['https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest'],
+			});
+			gapiInited = true;
+			maybeEnableButton();
+		}
 
-  function maybeEnableButtons() {
-    if (gapiInited && gisInited) {
-      // Aquí puedes auto-iniciar si quieres
-      tokenClient.requestAccessToken();
-    }
-  }
+		function gisLoaded() {
+			tokenClient = google.accounts.oauth2.initTokenClient({
+				client_id: CLIENT_ID,
+				scope: SCOPES,
+				callback: async (tokenResponse) => {
+					console.log('Usuari Autenticat');
+					llistarCorreus();
+				},
+			});
+			gisInited = true;
+			maybeEnableButton();
+		}
 
-  async function llistarCorreus() {
-    const response = await gapi.client.gmail.users.messages.list({
-      userId: 'me',
-      maxResults: 5,
-    });
-    const messages = response.result.messages;
-    if (!messages || messages.length === 0) {
-      console.log('No se encontraron mensajes.');
-    } else {
-      console.log('Mensajes:', messages);
-    }
-  }
+		function maybeEnableButton() {
+			if (gapiInited && gisInited) {
+				document.getElementById('login-button').disabled = false;
+			}
+		}
 
-  window.onload = () => {
-    gapiLoaded();
-    gisLoaded();
-  };
-</script>
+		function handleAuthClick() {
+			tokenClient.requestAccessToken();
+		}
+
+		async function llistarCorreus() {
+			const response = await gapi.client.gmail.users.messages.list({
+				userId: 'me',
+				maxResults: 5,
+			});
+			const messages = response.result.messages;
+			if (!messages || messages.length === 0) {
+				console.log('No se encontraron mensajes.');
+			} else {
+				console.log('Mensajes:', messages);
+			}
+		}
+
+		window.onload = () => {
+			gapiLoaded();
+			gisLoaded();
+		};
+	</script>
+</head>
+<body>
+	<h1>Consultar Gmail</h1>
+	<button id="login-button" onclick="handleAuthClick()" disabled>Iniciar sesión con Google</button>
+</body>
+</html>
