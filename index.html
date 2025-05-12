@@ -34,21 +34,19 @@
   }
 
   function gisLoaded() {
-    tokenClient = google.accounts.oauth2.initTokenClient({
-      client_id: CLIENT_ID,
-      scope: SCOPES,
-      callback: async (tokenResponse) => {
-        console.log('Usuari Autenticat');
-        correus = await llistarCorreus();
+      tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: async (tokenResponse) => {
+              console.log('Usuari Autenticat');
+              correus = await llistarCorreus();
 
-        // Extraiem els ids dels correus del tiket digital
-        for (let i = 0; i < correus.length; ++i) {
-            console.log(correus[i].id);
-        }
-
-
-      },
-    });
+              // Extraiem els ids dels correus del tiket digital
+              for (let i = 0; i < correus.length; ++i) {
+                  console.log("correu "+correus[i].id);
+              }
+          },
+      });
     gisInited = true;
     maybeEnableButton();
   }
