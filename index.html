@@ -39,7 +39,14 @@
       scope: SCOPES,
       callback: async (tokenResponse) => {
         console.log('Usuari Autenticat');
-        correus = await llistarCorreus(); // Uso correcto de 'await' y asignación global
+        correus = await llistarCorreus();
+
+        // Extraiem els ids dels correus del tiket digital
+        for (let i = 0; i < correus.length; ++i) {
+            console.log(correus[i].id);
+        }
+
+
       },
     });
     gisInited = true;
@@ -76,6 +83,10 @@
   window.onload = () => {
     gapiLoaded();
     gisLoaded();
+
+
+    
+
   };
 </script>
 </head>
