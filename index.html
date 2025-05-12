@@ -14,7 +14,7 @@
   let tokenClient;
   let gapiInited = false;
   let gisInited = false;
-  let correus = []; // Declaración global explícita
+ 
 
   const CLIENT_ID = '246049552174-fqcrsh2uvcpouptn1tij8t7bh686h4ad.apps.googleusercontent.com'; /*afegim el google clientID*/
   const API_KEY = ''; /*això no cal*/
@@ -39,7 +39,7 @@
           scope: SCOPES,
           callback: async (tokenResponse) => {
               console.log('Usuari Autenticat');
-              correus = await llistarCorreus();
+              let correus = await llistarCorreus();
 
               // Extraiem els ids dels correus del tiket digital
               for (let i = 0; i < correus.length; ++i) {
