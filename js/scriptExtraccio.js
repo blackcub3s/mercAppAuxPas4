@@ -8,31 +8,7 @@ const CLIENT_ID = '246049552174-fqcrsh2uvcpouptn1tij8t7bh686h4ad.apps.googleuser
 const API_KEY = '';
 const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
 
-console.log("V ACTUALITZADA PER DESCARREGA ESCOLLINT UBICACIO");
-
-
-
-async function guardarMultiplesPDFs(archivos) {
-  try {
-    const dirHandle = await window.showDirectoryPicker();
-
-    for (const archivo of archivos) {
-      const { blob, filename } = archivo;
-
-      const fileHandle = await dirHandle.getFileHandle(filename, { create: true });
-      const writable = await fileHandle.createWritable();
-      await writable.write(blob);
-      await writable.close();
-
-      console.log(`Archivo guardado: ${filename}`);
-    }
-  } catch (error) {
-    console.error('Error al guardar archivos:', error);
-  }
-}
-
-
-
+console.log("V ACTUALITZADA ok");
 
 function loadScript(src, onload) {
   const script = document.createElement('script');
@@ -64,9 +40,6 @@ function gisLoaded() {
       console.log('Usuari Autenticat');
       let correus = await llistarCorreus();
 
-
-      let archivosParaGuardar = [];
-
       for (const correu of correus) {
         const message = await gapi.client.gmail.users.messages.get({
           userId: 'me',
@@ -93,12 +66,13 @@ function gisLoaded() {
             const byteArray = new Uint8Array(byteNumbers);
 
             const blob = new Blob([byteArray], { type: 'application/pdf' });
-            archivosParaGuardar.push({ blob, filename: part.filename });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = part.filename;
+            link.click();
           }
         }
       }
-
-      await guardarMultiplesPDFs(archivosParaGuardar);
     },
   });
   gisInited = true;
