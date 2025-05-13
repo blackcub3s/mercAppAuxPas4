@@ -8,7 +8,7 @@ const CLIENT_ID = '246049552174-fqcrsh2uvcpouptn1tij8t7bh686h4ad.apps.googleuser
 const API_KEY = '';
 const SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
 
-console.log("V ACTUALITZADA");
+console.log("V ACTUALITZADA bona");
 
 function loadScript(src, onload) {
   const script = document.createElement('script');
