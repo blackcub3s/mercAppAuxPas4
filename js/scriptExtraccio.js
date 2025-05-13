@@ -22,7 +22,7 @@ function initClient() {
 function llistarCorreus() {
     gapi.client.gmail.users.messages.list({
         userId: 'me',
-        maxResults: 5
+        maxResults: 1
     }).then(function(response) {
         const messages = response.result.messages;
         if (!messages || messages.length === 0) {
