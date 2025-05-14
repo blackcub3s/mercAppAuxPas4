@@ -89,7 +89,7 @@ async function llistarCorreus() {
   const response = await gapi.client.gmail.users.messages.list({
     userId: 'me',
     q: 'from:ticket_digital@mail.mercadona.com',    //LA FUNCIO ON FEM EL FILTRE PER CORREUS
-    maxResults: 1,   //Poso nomes un mail per no gastar tokens
+    maxResults: 500,   //Posem un màxim de 500 resultats
   });
 
   const messages = response.result.messages;
